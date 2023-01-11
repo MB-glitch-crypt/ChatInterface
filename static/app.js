@@ -7,6 +7,7 @@ class Chatbox {
         }
 
         this.state = false;
+        this.firstOpen = false;
         this.messages = [];
     }
 
@@ -31,6 +32,23 @@ class Chatbox {
         // show or hides the box
         if(this.state) {
             chatbox.classList.add('chatbox--active')
+            if (!this.firstOpen){
+                fetch('http://127.0.0.1:8081/chatServer/start', {
+            method: 'GET',
+            mode: 'cors',
+          })
+          .then(r => r.json())
+          .then(r => {
+            let msg2 = { name: "Bot", message: r.response };
+            this.messages.push(msg2);
+            this.firstOpen = true;
+            this.updateChatText(chatbox)
+        }).catch((error) => {
+            console.error('Error:', error);
+            this.updateChatText(chatbox)
+          });
+            }
+
         } else {
             chatbox.classList.remove('chatbox--active')
         }
@@ -41,6 +59,9 @@ class Chatbox {
         let text1 = textField.value
         if (text1 === "") {
             return;
+        }
+        if (text1 === "quit"){
+            this.toggleState(chatbox)
         }
 
         let msg1 = { name: "User", message: text1 }
